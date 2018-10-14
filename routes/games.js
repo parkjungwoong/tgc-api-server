@@ -19,29 +19,25 @@ function makeResMeg(data){
         ,result : data
     };
 }
+
 /**
- * 구독 가능 게임 리스트
+ * 게임 조회 http://localhost/games?q=id%3Dterry
  */
-router.get('/list', function(req, res, next) {
-    console.log('list res');
+router.get('/', function(req, res, next) {
+    console.log('game/',req.query);
     res.json(makeResMeg(fakeList));
 });
 
 /**
- * 구독 저장
+ * 구독 가능 게임 리스트
  */
-router.post('/add', function(req, res, next) {
-    console.log('body => ',req.body);
-    fakeMyList.push(req.body);
-    res.json(makeResMeg(fakeMyList));
+router.get('/list/:stNum', function(req, res, next) {
+    console.log('list res');
+    res.json(makeResMeg(fakeList));
 });
 
-/**
- * 구독 리스트
- */
-router.get('/myList', function(req, res, next) {
-    res.json(makeResMeg(fakeMyList));
-});
+
+
 
 
 
