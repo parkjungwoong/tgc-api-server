@@ -8,6 +8,14 @@ var fakeList = [
     ,{name:'리니지',id:'04',regCnt:500,img:'https://wstatic-cdn.plaync.com/lineage/v1/img/meta/lineage_fb.jpg'}
 ];
 
+var fakeEventList = [
+     {stDt:20181001,enDt:20181004,eventId:'a1',gameId:'01',title:'몬스터 헌터 이벤트,10/01~10/04'}
+    ,{stDt:20181002,enDt:20181002,eventId:'a2',gameId:'02',title:'롤 이벤트,10/02'}
+    ,{stDt:20181001,enDt:20181015,eventId:'a3',gameId:'03',title:'와우 이벤트, 10/01~10/15'}
+    ,{stDt:20180920,enDt:20181007,eventId:'a4',gameId:'04',title:'리니지 이벤트,09/20~10/07'}
+    ,{stDt:20181014,enDt:20181108,eventId:'a5',gameId:'01',title:'몬헌 이벤트,10/14~11/08'}
+]
+
 var fakeMyList = [
 
 ];
@@ -31,9 +39,56 @@ router.get('/', function(req, res, next) {
 /**
  * 구독 가능 게임 리스트
  */
-router.get('/list/:stNum', function(req, res, next) {
+router.get('/list', function(req, res, next) {
     console.log('list res');
     res.json(makeResMeg(fakeList));
+});
+
+/**
+ * 구독 중인 게임 조회
+ */
+router.get('/subscribe/:userId', function(req, res, next) {
+    console.log('body => ',req.params.userId);
+    res.json(makeResMeg(fakeList));
+});
+
+/**
+ * 구독 중인 게임 이벤트 조회 특정 게임
+ */
+router.get('/event/:userId/game/:gameId', function(req, res, next) {
+    res.json(makeResMeg(fakeEventList));
+});
+
+/**
+ * 구독 중인 게임 이벤트 조회
+ */
+router.get('/event/:userId', function(req, res, next) {
+    res.json(makeResMeg(fakeEventList));
+});
+
+
+/**
+ * 내 구독 리스트 조회
+ */
+router.get('/:id/subscribe/:stNum', function(req, res, next) {
+    console.log('body => ',req.params.id);
+    res.json(makeResMeg(fakeMyList));
+});
+
+/**
+ * 구독
+ */
+router.post('/subscribe', function(req, res, next) {
+    console.log('body => ',req.body);
+    fakeMyList.push(req.body);
+    res.json(makeResMeg(fakeMyList));
+});
+
+/**
+ * 구독 취소
+ */
+router.delete('/subscribe/:id/game/:gameId',function (req,res,next) {
+    res.json(makeResMeg());
 });
 
 
