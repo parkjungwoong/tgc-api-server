@@ -33,7 +33,13 @@ function makeResMeg(data){
  */
 router.get('/', function(req, res, next) {
     console.log('game/',req.query);
-    res.json(makeResMeg(fakeList));
+    var q = req.query;
+
+   /* fakeList.find((id) => {
+
+    });*/
+
+    res.json(makeResMeg({name:'리니지',id:'04',regCnt:500,img:'https://wstatic-cdn.plaync.com/lineage/v1/img/meta/lineage_fb.jpg',content:'이것은 리니지라는 게임입니다. 그리고 모바일로도 있구요, 한국 아저씨들이 많이 하는 게임입니다. 현질을 많이 유도하구요, 공성전 이런것들이 막 있고 어쩌구 저쩌구 저러구 막 이래저래 와리가리 뒤로 앞으로 좌우로 왔다갔다.'}));
 });
 
 /**
@@ -41,6 +47,7 @@ router.get('/', function(req, res, next) {
  */
 router.get('/list', function(req, res, next) {
     console.log('list res');
+    // res.json(makeResMeg([]));
     res.json(makeResMeg(fakeList));
 });
 
@@ -81,7 +88,7 @@ router.get('/:id/subscribe/:stNum', function(req, res, next) {
 router.post('/subscribe', function(req, res, next) {
     console.log('body => ',req.body);
     fakeMyList.push(req.body);
-    res.json(makeResMeg(fakeMyList));
+    res.json(makeResMeg(''));
 });
 
 /**
