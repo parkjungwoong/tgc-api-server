@@ -3,10 +3,13 @@ var cors = require('cors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+require('dotenv').config();
 
+//routes
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var gamesRouter = require('./routes/games');
+//routes end
 
 var app = express();
 
@@ -21,6 +24,6 @@ app.use('/user', usersRouter);
 app.use('/game', gamesRouter);
 
 //module.exports = app;
-app.listen(80, function () {
+app.listen(process.env.SERVER_PORT, function () {
     console.log('Example app listening on port 80!');
 });

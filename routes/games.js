@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+let gameService = require('../service/gameService.js');
+let utils = require('../common/utils.js');
+let CONST = require('../common/const.js');
 
 var fakeList = [
     {name:'Monster Hunter',id:'01',regCnt:10000,img:'http://t1.daumcdn.net/liveboard/thisisgame/608b63bdbde7493891544f4d8f39cbd9.jpg'}
@@ -34,11 +37,6 @@ function makeResMeg(data){
 router.get('/', function(req, res, next) {
     console.log('game/',req.query);
     var q = req.query;
-
-   /* fakeList.find((id) => {
-
-    });*/
-
     res.json(makeResMeg({name:'리니지',id:'04',regCnt:500,img:'https://wstatic-cdn.plaync.com/lineage/v1/img/meta/lineage_fb.jpg',content:'이것은 리니지라는 게임입니다. 그리고 모바일로도 있구요, 한국 아저씨들이 많이 하는 게임입니다. 현질을 많이 유도하구요, 공성전 이런것들이 막 있고 어쩌구 저쩌구 저러구 막 이래저래 와리가리 뒤로 앞으로 좌우로 왔다갔다.'}));
 });
 
@@ -47,16 +45,28 @@ router.get('/', function(req, res, next) {
  */
 router.get('/list', function(req, res, next) {
     console.log('list res');
-    // res.json(makeResMeg([]));
-    res.json(makeResMeg(fakeList));
+    gameService.getGameList(req.query).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err => {
+        console.error('구독 가능 게임 리스트 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
 });
 
 /**
  * 구독 중인 게임 조회
  */
 router.get('/subscribe/:userId', function(req, res, next) {
-    console.log('body => ',req.params.userId);
-    res.json(makeResMeg(fakeList));
+    let param = req.query;
+    param.userId = req.params.userId;
+
+    gameService.getSubscribeList(param).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err => {
+        console.error('구독 중인 게임 조회',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
+
 });
 
 /**
@@ -86,16 +96,24 @@ router.get('/:id/subscribe/:stNum', function(req, res, next) {
  * 구독
  */
 router.post('/subscribe', function(req, res, next) {
-    console.log('body => ',req.body);
-    fakeMyList.push(req.body);
-    res.json(makeResMeg(''));
+    gameService.subscribe(req.body).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('구독취소 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
 });
 
 /**
  * 구독 취소
  */
 router.delete('/subscribe/:id/game/:gameId',function (req,res,next) {
-    res.json(makeResMeg());
+    gameService.cancelSubscribe(req.params).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('구독취소 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
 });
 
 
