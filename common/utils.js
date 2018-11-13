@@ -16,5 +16,7 @@ module.exports =  {
             ,resMsg : res.message ? res.message : CONST.SUCCESS.message
             ,result : res.result
         }
-    }
+    },
+
+    //todo: validation 함수 만들기, (ojbect,keys) true,false
 }

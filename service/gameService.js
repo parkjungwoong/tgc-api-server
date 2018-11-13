@@ -24,7 +24,14 @@ module.exports = {
      * @returns {Promise<void>}
      */
     async searchGame(param){
+        let query = param.q;
+        let offset = param.offset;
+        let limit = param.limit;
 
+        if(utils.isEmpty(offset)) offset = 0;
+        if(utils.isEmpty(limit)) limit = 20;
+
+        return await dao.selectGame(query, Number(offset), Number(limit));
     },
 
     /**
@@ -33,7 +40,7 @@ module.exports = {
      * @returns {Promise<void>}
      */
     async getSubscribeList(param){
-        let userNo = param.userId;
+        let userNo = param.userNo;
         let offset = param.offset;
         let limit = param.limit;
 
@@ -41,6 +48,39 @@ module.exports = {
         if(utils.isEmpty(limit)) limit = 20;
 
         return (await dao.selectAllSubscribList(userNo,Number(offset), Number(limit))).subscribeList;
+    },
+
+    /**
+     * 게임 이벤트 조회
+     * @param param
+     * @returns {Promise<void>}
+     */
+    async getGameEventList(param){
+        let iso = param.iso;//클라이언트 현재 시간
+        let gameIds = param.gameId;
+
+        let clientDate = new Date(iso);
+        let y = clientDate.getFullYear(),m = clientDate.getMonth();
+        let firstDay = new Date(y, m, 1).toISOString();
+        let lastDay = new Date(y, m + 1, 0).toISOString();
+
+        return await dao.selectEvent(gameIds,firstDay,lastDay);
+    },
+
+    /**
+     * 구독 중인 게임 이벤트 조회
+     * @param param
+     * @returns {Promise<void>}
+     */
+    async getSubscribeEventList(param){
+        let userNo = param.userNo;
+        let subscirbList = (await dao.selectAllSubscribList(userNo)).subscribeList;
+
+        param.gameId = subscirbList.map(item=>{
+            return item.id;
+        });
+
+        return await this.getGameEventList(param);
     },
 
     /**
@@ -58,7 +98,7 @@ module.exports = {
             ,name: gameName
         };
 
-        let subscribeList = (await dao.selectAllSubscribList(userNo,0,20)).subscribeList;
+        let subscribeList = (await dao.selectAllSubscribList(userNo)).subscribeList;
 
         let updateFlag = true;
 
