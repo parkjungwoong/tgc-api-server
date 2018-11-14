@@ -130,5 +130,18 @@ module.exports = {
         await dao.deletesubScribe(userNo,gameId);
 
         return (await dao.selectAllSubscribList(userNo,0,20)).subscribeList;
+    },
+
+    /**
+     * 사용자 알림 추가
+     * @param param
+     * @returns {Promise<void>}
+     */
+    async insertRemindInfo(param){
+        let userNo = param.userNo;
+        let eventId = param.eventId;
+        let remindDay = param.remindDay;
+
+        await dao.insertRemind(userNo,eventId,remindDay);
     }
 };

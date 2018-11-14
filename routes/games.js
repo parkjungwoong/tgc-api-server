@@ -1,5 +1,6 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
+
 let gameService = require('../service/gameService.js');
 let utils = require('../common/utils.js');
 let CONST = require('../common/const.js');
@@ -94,5 +95,19 @@ router.delete('/subscribe/:id/game/:gameId',function (req,res,next) {
         res.json(utils.makeResMeg(CONST.FAIL));
     });
 });
+
+/**
+ * 사용자 알림 추가
+ */
+router.post('/remind',function (req,res,next) {
+    gameService.insertRemindInfo(req.body).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('구독취소 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
+});
+
+//todo: 리마인드 삭제, 수정 ??
 
 module.exports = router;

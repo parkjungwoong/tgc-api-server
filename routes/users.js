@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
+
 let userService = require('../service/userService.js');
+let utils = require('../common/utils.js');
+let CONST = require('../common/const.js');
 
 function makeResMeg(data){
     return res = {
@@ -18,33 +21,50 @@ var fakeMessage = [
  * 로그인
  */
 router.post('/login',function (req,res,next) {
-    console.log('body => ',req.body);
-    //todo: 응답으로 회원정보(등급,회원 고유번호,등)
     userService.getUser(req.body.id).then(value => {
-        res.json(value);
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('회원 가입 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
     });
 });
 /**
  *회원 가입
  */
 router.post('/', function(req, res, next) {
-    console.log('body => ',req.body);
     userService.addUser(req.body).then(value => {
-        res.json(makeResMeg(value));
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('회원 가입 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
     });
 });
 /**
  * 회원 정보 갱신
  */
-router.put('/:id', function(req, res, next) {
-    console.log('body => ',req.body);
+router.put('/:userNo', function(req, res, next) {
+    let param = Object.assign(req.body,req.params);
 
-    res.json(makeResMeg(''));
+    userService.updateUserInfo(param).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('회원 정보 갱신 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
 });
 
-router.get('/:id/message', function(req, res, next) {
-    console.log('list res');
-    res.json(makeResMeg(fakeMessage));
+/**
+ * 메시지 리스트 조회
+ */
+router.get('/:userNo/message', function(req, res, next) {
+    let param = Object.assign(req.query,req.params);
+
+    userService.getMessageList(param).then(value => {
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('메시지 리스트 조회 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
 });
 
 

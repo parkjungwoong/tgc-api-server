@@ -11,6 +11,8 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 let gameS = require('./schema/game.js');
 let userS = require('./schema/user.js');
 let eventS = require('./schema/event.js');
+let messageS = require('./schema/message.js');
+let remindS = require('./schema/remind.js');
 
 module.exports =  {
 
@@ -24,8 +26,8 @@ module.exports =  {
             pw: userInfo.pw,
             state: '10',
             setInfo: {
-                push: userInfo.setInfo.push ? new Date().getTime() : '',
-                marketing: userInfo.setInfo.marketing ? new Date().getTime() : ''
+                push: userInfo.setInfo.push ? new Date().toISOString() : '',
+                marketing: userInfo.setInfo.marketing ? new Date().toISOString() : ''
             },
             device: {
                 appVer: userInfo.appVer,
@@ -39,9 +41,19 @@ module.exports =  {
         await newUser.save();
     },
 
+    //회원 조회
     async selectUser(id) {
-        console.log('id=>',id);
         return await userS.findOne({id:id});
+    },
+
+    //회원 정보 갱신
+    async updateUser(uesrNo, updateInfo){
+        return await userS.updateOne({id: uesrNo}, { $set: updateInfo });
+    },
+
+    //메시지 조회
+    async selectMessageList(userNo,offset,limit){
+        return await messageS.find({userNo:userNo}).sort({inDt:-1}).skip(offset).limit(limit);
     },
 
     //모든 게임 리스트 조회
@@ -81,4 +93,19 @@ module.exports =  {
     async deletesubScribe(userNo,gameId){
         return await userS.updateOne({id: userNo}, { $pull: { subscribeList: {id: gameId} } });
     },
+
+    //사용자 알림 추가
+    async insertRemind(userNo,eventId,remindDay){
+        let newRemind = new remindS({
+            id:utils.generateUUID(),
+            userNo:userNo,
+            eventId:eventId,
+            remindDay:remindDay,
+            inDt:new Date().toISOString(),
+            upDt:new Date().toISOString()
+        });
+
+        await newRemind.save();
+    }
+
 };
