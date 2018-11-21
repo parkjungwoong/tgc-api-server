@@ -2,15 +2,19 @@ let CONST = require('./const.js');
 
 module.exports =  {
     isEmpty(obj) {
-
         if(typeof obj === 'string'){
             return obj.trim() == '';
         } else {
-            return obj === undefined || obj == null || obj.length == 0;
+            return obj === undefined || obj == null || obj.length === 0;
         }
     },
 
-    makeResMeg(res){
+    isNotEmpty(obj){
+      return !this.isEmpty(obj);
+    },
+
+    makeResMeg(res,err){
+        res = err && err.code && err.message ? err : res;
         return {
             resCode : res.code ? res.code : CONST.SUCCESS.code
             ,resMsg : res.message ? res.message : CONST.SUCCESS.message
@@ -26,6 +30,20 @@ module.exports =  {
             return (c=='x' ? r : (r&0x3|0x8)).toString(16);
         });
         return uuid;
+    },
+
+    isNumeric(num){
+        return !isNaN(num)
+    },
+
+    generatePageObj(param){
+        let offset = 0;
+        let limit = CONST.DEFAULT_LIMIT;
+
+        if( this.isNotEmpty(param.offset) && this.isNumeric(param.offset) ) offset = Number(param.offset);
+        if( this.isNotEmpty(param.limit) && this.isNumeric(param.limit) ) limit = Number(param.limit);
+
+        return {offset: offset, limit: limit};
     }
 
 

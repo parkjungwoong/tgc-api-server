@@ -19,14 +19,14 @@ module.exports =  {
     //회원 추가
     async insertUser(userInfo){
         let newUser = new userS({
-            id: userInfo.id,
+            userNo: userInfo.userNo,
             name: userInfo.name,
             email: userInfo.email,
             thirdPartyLink: [userInfo.regType],
             pw: userInfo.pw,
             state: '10',
             setInfo: {
-                push: userInfo.setInfo.push ? new Date().toISOString() : '',
+                pushAgree: userInfo.setInfo.pushAgree ? new Date().toISOString() : '',
                 marketing: userInfo.setInfo.marketing ? new Date().toISOString() : ''
             },
             device: {
@@ -43,27 +43,29 @@ module.exports =  {
 
     //회원 조회
     async selectUser(id) {
-        return await userS.findOne({id:id});
+        return await userS.findOne({userNo:id});
     },
 
     //회원 정보 갱신
-    async updateUser(uesrNo, updateInfo){
-        return await userS.updateOne({id: uesrNo}, { $set: updateInfo });
+    async updateUser(userNo, updateInfo){
+        return await userS.updateOne({userNo: userNo}, { $set: updateInfo });
     },
 
     //메시지 조회
-    async selectMessageList(userNo,offset,limit){
-        return await messageS.find({userNo:userNo}).sort({inDt:-1}).skip(offset).limit(limit);
+    async selectMessageList(userNo,pageObj){
+        return await messageS.find({userNo:userNo}).sort({inDt:-1}).skip(pageObj.offset).limit(pageObj.limit);
     },
 
     //모든 게임 리스트 조회
-    async selectAllGame(offset,limit){
-        return await gameS.find().skip(offset).limit(limit);
+    async selectGameList(pageObj){
+        return await gameS.find().skip(pageObj.offset).limit(pageObj.limit);
     },
 
     //게임 검색
-    async selectGame(query,offset,limit){
-        return await gameS.find({$or:[ {name: {$regex: '.*'+query+'.*'} }, {id:query} ]}).skip(offset).limit(limit);
+    async selectGame(query, pageObj){
+        return await gameS.find({_id:query}).skip(pageObj.offset).limit(pageObj.limit);
+        //todo: 이름 또는 타입으로 검색 기능 추가시 사용
+        //return await gameS.find({$or:[ {name: {$regex: '.*'+query+'.*'} }, {id:query} ]}).skip(offset).limit(limit);
     },
 
     //이벤트 조회
@@ -71,27 +73,29 @@ module.exports =  {
         return await eventS.find({
             stDt: { $gte: new Date(stDt) }
             ,enDt: { $lte: new Date(enDt) }
-            ,'gameInfo.id': {$in: gameId}
-        });
+            ,'gameInfo._id': { $in: gameId }
+        },{pushInfo:0,_class:0,md5hashCode:0,isFixed:0});
     },
 
     //구독 추가
-    async insertSubscribeList(userNo,gameInfo){
-        return await userS.update({id: userNo}, { $push: { subscribeList: gameInfo } });
+    async insertSubscribeList(userNo,gameObjId){
+        return await userS.update({userNo: userNo}, { $push: { subscribeList: { 'gameInfo': gameObjId } } });
     },
 
-    //구독 중인 게임 조회
-    async selectAllSubscribList(userNo,offset,limit){
-        if(utils.isEmpty(offset) && utils.isEmpty(limit)){
-            return await userS.findOne({id:userNo},{subscribeList:1,_id:0});
-        } else {
-            return await userS.findOne({id:userNo},{subscribeList:1,_id:0}).skip(offset).limit(limit);
-        }
+    //구독 중인 게임 조회 (전체)
+    async selectAllSubscribList(userNo){
+        return await userS.findOne({userNo:userNo},{subscribeList:1,_id:0}).populate('subscribeList.gameInfo');
+    },
+
+    //구독 중인 게임 조회 (페이징)
+    async selectSubscribList(userNo, pageObj){
+        //todo: 페이징 동작 안함 !!
+        return await userS.findOne({userNo:userNo},{subscribeList:1,_id:0}).populate('subscribeList.gameInfo').skip(pageObj.offset).limit(pageObj.limit);
     },
 
     //구독 삭제
-    async deletesubScribe(userNo,gameId){
-        return await userS.updateOne({id: userNo}, { $pull: { subscribeList: {id: gameId} } });
+    async deletesubScribe(userNo,gameObjId){
+        return await userS.update({userNo: userNo}, { $pull: { 'subscribeList': { 'gameInfo':gameObjId }} },{multi:false});
     },
 
     //사용자 알림 추가

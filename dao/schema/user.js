@@ -1,14 +1,14 @@
 let mongoose = require('mongoose');
 
 let user = new mongoose.Schema({
-    id:String,
+    userNo:String,
     name:String,
     email:String,
     thirdPartyLink: Array,
     pw:String,
     state:Number,
     setInfo: {
-        push:Date,
+        pushAgree:Date,
         marketing:Date
     },
     device: {
@@ -21,7 +21,7 @@ let user = new mongoose.Schema({
     inDt: Date,
     //inDt: { type: Date, default: Date.now },
     upDt: Date,
-    subscribeList: Array
+    subscribeList: [ { gameInfo : { type: mongoose.Schema.Types.ObjectId, ref: 'game' }, inDt: { type: Date, default: Date.now } }]
 }, { collection: 'user' });
 
 module.exports = mongoose.model('user', user);

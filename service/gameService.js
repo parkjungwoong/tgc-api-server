@@ -1,6 +1,9 @@
+const queryString = require('query-string');
 let dao = require('../dao/dao.js');
 let utils = require('../common/utils.js');
 let CONST = require('../common/const.js');
+let userService = require('./userService.js');
+
 
 module.exports = {
     /**
@@ -9,13 +12,9 @@ module.exports = {
      * @returns {Promise<*|Promise<*>>} 게임 리스트
      */
     async getGameList(param){
-        let offset = param.offset;
-        let limit = param.limit;
+        let pageObj = utils.generatePageObj(param);
 
-        if(utils.isEmpty(offset)) offset = 0;
-        if(utils.isEmpty(limit)) limit = 5;
-
-        return dao.selectAllGame(Number(offset), Number(limit));
+        return dao.selectGameList(pageObj);
     },
 
     /**
@@ -24,14 +23,13 @@ module.exports = {
      * @returns {Promise<void>}
      */
     async searchGame(param){
-        let query = param.q;
-        let offset = param.offset;
-        let limit = param.limit;
+        let query = decodeURIComponent(param.q);
+        let quertObj = queryString.parse(query);
 
-        if(utils.isEmpty(offset)) offset = 0;
-        if(utils.isEmpty(limit)) limit = 20;
+        let pageObj = utils.generatePageObj(param);
 
-        return await dao.selectGame(query, Number(offset), Number(limit));
+        //todo: 이름 또는 타입으로 검색 기능 추가하기
+        return await dao.selectGame(quertObj.id, pageObj);
     },
 
     /**
@@ -41,13 +39,18 @@ module.exports = {
      */
     async getSubscribeList(param){
         let userNo = param.userNo;
-        let offset = param.offset;
-        let limit = param.limit;
+        let pageObj = utils.generatePageObj(param);
 
-        if(utils.isEmpty(offset)) offset = 0;
-        if(utils.isEmpty(limit)) limit = 20;
+        let subscribeList = await dao.selectSubscribList(userNo, pageObj);
+        subscribeList = utils.isEmpty(subscribeList) ? [] :  subscribeList.subscribeList;
 
-        return (await dao.selectAllSubscribList(userNo,Number(offset), Number(limit))).subscribeList;
+        let res = subscribeList.map(value=>{
+            return value.gameInfo;
+            //todo: 구독일 object 병합이 안되네 ....
+            //return Object.assign(value.gameInfo,{'inDt':value.inDt});
+        });
+
+        return res;
     },
 
     /**
@@ -56,15 +59,15 @@ module.exports = {
      * @returns {Promise<void>}
      */
     async getGameEventList(param){
-        let iso = param.iso;//클라이언트 현재 시간
-        let gameIds = param.gameId;
-
+        let iso = decodeURIComponent(param.iso);//클라이언트 현재 시간
+        let gameObjIdList = param.gameObjIdList;
+        console.log('iso',iso);
         let clientDate = new Date(iso);
         let y = clientDate.getFullYear(),m = clientDate.getMonth();
-        let firstDay = new Date(y, m, 1).toISOString();
-        let lastDay = new Date(y, m + 1, 0).toISOString();
+        let firstDayOfMonth = new Date(y, m, 1).toISOString();
+        let lastDayOfMonth = new Date(y, m + 1, 0).toISOString();
 
-        return await dao.selectEvent(gameIds,firstDay,lastDay);
+        return await dao.selectEvent(gameObjIdList, firstDayOfMonth, lastDayOfMonth);
     },
 
     /**
@@ -74,10 +77,11 @@ module.exports = {
      */
     async getSubscribeEventList(param){
         let userNo = param.userNo;
-        let subscirbList = (await dao.selectAllSubscribList(userNo)).subscribeList;
+        let subscribeList = await dao.selectAllSubscribList(userNo);
+        subscribeList = utils.isEmpty(subscribeList) ? [] :  subscribeList.subscribeList;
 
-        param.gameId = subscirbList.map(item=>{
-            return item.id;
+        param.gameObjIdList = subscribeList.map(item=>{
+            return item.gameInfo._id;
         });
 
         return await this.getGameEventList(param);
@@ -89,30 +93,28 @@ module.exports = {
      * @returns {Promise<void>}
      */
     async subscribe(param){
+        console.log('param',param);
         let userNo = param.userNo;
-        let gameId = param.gameId;
-        let gameName = param.gameName;
+        let gameObjId = param._id;
 
-        let gameInfo = {
-            id: gameId
-            ,name: gameName
-        };
+        await userService.getUser(param);
 
-        let subscribeList = (await dao.selectAllSubscribList(userNo)).subscribeList;
+        let subscribeList = await this.getSubscribeList(param);
 
         let updateFlag = true;
 
         subscribeList.find(item=>{
-            if(item.id === gameId){
+            if(item._id == gameObjId){
                 updateFlag = false;
             }
         });
 
         if(updateFlag) {
-            await dao.insertSubscribeList(userNo,gameInfo);
-            subscribeList.push(gameInfo);
+            await dao.insertSubscribeList(userNo,gameObjId);
+
+            subscribeList = await this.getSubscribeList(param);
         } else {
-            console.log('이미 구독된 게임',gameInfo);
+            console.log('이미 구독된 게임',gameObjId);
         }
 
         return subscribeList;
@@ -124,12 +126,13 @@ module.exports = {
      * @returns {Promise<number>}
      */
     async cancelSubscribe(param){
-        let userNo = param.id;
-        let gameId = param.gameId;
+        let userNo = param.userNo;
+        let gameObjId = param._id;
+        console.log('userNo = '+userNo);
+        console.log('gameObjId = '+gameObjId);
+        await dao.deletesubScribe(userNo,gameObjId);
 
-        await dao.deletesubScribe(userNo,gameId);
-
-        return (await dao.selectAllSubscribList(userNo,0,20)).subscribeList;
+        return await this.getSubscribeList(param);
     },
 
     /**

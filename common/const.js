@@ -1,10 +1,15 @@
 module.exports = {
+
+    DEFAULT_LIMIT : 5,
+
+    //================== 서버 응답 관련 고정 변수 ==================
     SUCCESS : {
-      message : '정상처리 되었습니다.'
+        code : '0000',
+        message : '정상처리 되었습니다.'
     },
 
     FAIL : {
-        code : 'E001',
+        code : 'E0001',
         message : '처리중 오류가 발생했습니다.'
     },
 
