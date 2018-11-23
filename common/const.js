@@ -14,7 +14,12 @@ module.exports = {
     },
 
     USER_NOT_FOUND : {
-        code : 'U002',
+        code : 'U001',
         message: '회원 정보 불일치'
+    },
+
+    NOT_SUPPORTED_LOGIN_TYPE : {
+        code : 'U002',
+        message: '지원하지 않는 로그인 형식'
     }
 }

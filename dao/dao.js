@@ -22,7 +22,8 @@ module.exports =  {
             userNo: userInfo.userNo,
             name: userInfo.name,
             email: userInfo.email,
-            thirdPartyLink: [userInfo.regType],
+            thirdPartyLinkApp: userInfo.thirdPartyLinkApp,
+            thirdPartyLinkInfo: userInfo.thirdPartyLinkInfo,
             pw: userInfo.pw,
             state: '10',
             setInfo: {

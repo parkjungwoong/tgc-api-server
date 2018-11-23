@@ -4,7 +4,8 @@ let user = new mongoose.Schema({
     userNo:String,
     name:String,
     email:String,
-    thirdPartyLink: Array,
+    thirdPartyLinkApp:String,
+    thirdPartyLinkInfo:Map,
     pw:String,
     state:Number,
     setInfo: {
