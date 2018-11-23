@@ -24,6 +24,8 @@ app.use('/user', usersRouter);
 app.use('/game', gamesRouter);
 
 //module.exports = app;
-app.listen(process.env.SERVER_PORT, function () {
+var port = 80;
+//process.env.SERVER_PORT
+app.listen(port, function () {
     console.log('Example app listening on port 80!');
 });
