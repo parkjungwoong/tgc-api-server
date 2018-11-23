@@ -9,6 +9,7 @@ require('dotenv').config();
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var gamesRouter = require('./routes/games');
+var comRouter = require('./routes/com');
 //routes end
 
 var app = express();
@@ -22,7 +23,7 @@ app.use(cors());
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/game', gamesRouter);
-app.use('/com', usersRouter);
+app.use('/com', comRouter);
 
 //module.exports = app;
 var port = 80;
