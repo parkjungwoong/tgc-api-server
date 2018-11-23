@@ -22,6 +22,7 @@ app.use(cors());
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/game', gamesRouter);
+app.use('/com', usersRouter);
 
 //module.exports = app;
 var port = 80;
