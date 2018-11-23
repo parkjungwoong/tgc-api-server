@@ -5,7 +5,7 @@ let utils = require('../common/utils.js');
 let CONST = require('../common/const.js');
 
 /* GET home page. */
-router.get('/checkInit', function(req, res, next) {
+router.get('/checkInit/:ver', function(req, res, next) {
     console.info('checkInit',req.query);
     res.json(utils.makeResMeg({result:''}));
 });
