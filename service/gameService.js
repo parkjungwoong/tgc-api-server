@@ -42,10 +42,14 @@ module.exports = {
         let pageObj = utils.generatePageObj(param);
 
         let subscribeList = await dao.selectSubscribList(userNo, pageObj);
+        console.log(subscribeList);
         subscribeList = utils.isEmpty(subscribeList) ? [] :  subscribeList.subscribeList;
 
         let res = subscribeList.map(value=>{
             return value.gameInfo;
+            console.log(value.gameInfo);
+            console.log('====');
+            console.log(value.inDt);
             //todo: 구독일 object 병합이 안되네 ....
             //return Object.assign(value.gameInfo,{'inDt':value.inDt});
         });
@@ -128,8 +132,7 @@ module.exports = {
     async cancelSubscribe(param){
         let userNo = param.userNo;
         let gameObjId = param._id;
-        console.log('userNo = '+userNo);
-        console.log('gameObjId = '+gameObjId);
+
         await dao.deletesubScribe(userNo,gameObjId);
 
         return await this.getSubscribeList(param);

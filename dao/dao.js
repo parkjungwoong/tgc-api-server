@@ -93,7 +93,7 @@ module.exports =  {
     //구독 중인 게임 조회 (페이징)
     async selectSubscribList(userNo, pageObj){
         //todo: 페이징 동작 안함 !!
-        return await userS.findOne({userNo:userNo},{subscribeList:1,_id:0}).populate('subscribeList.gameInfo').skip(pageObj.offset).limit(pageObj.limit);
+        return await userS.findOne({userNo:userNo},{subscribeList:1,_id:0,inDt:1}).populate('subscribeList.gameInfo').skip(pageObj.offset).limit(pageObj.limit);
     },
 
     //구독 삭제
