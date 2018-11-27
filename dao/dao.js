@@ -15,6 +15,8 @@ let userS = require('./schema/user.js');
 let eventS = require('./schema/event.js');
 let messageS = require('./schema/message.js');
 let remindS = require('./schema/remind.js');
+let appVerS = require('./schema/appVer.js');
+let bannerS = require('./schema/banner.js');
 
 module.exports =  {
 
@@ -113,6 +115,16 @@ module.exports =  {
         });
 
         await newRemind.save();
+    },
+
+    //앱 최신 버전 정보 조회
+    async selectAppVer(os){
+        return await appVerS.findOne({os:os,latest:true},{_id:0});
+    },
+
+    //배너 조회
+    async selectBanner(){
+        return await bannerS.findOne({isUse:true},{_id:0});
     }
 
 };
