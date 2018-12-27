@@ -4,7 +4,7 @@ let CONST = require('../common/const.js');
 
 module.exports =  {
 
-    //회원 가입
+    //회원 가입 - 사용 안함
     async addUser(userInfo){
 
         //회원 정보 입력
@@ -19,6 +19,14 @@ module.exports =  {
 
         if(utils.isEmpty(userInfo)) {
             throw CONST.USER_NOT_FOUND;
+        }
+
+        if(userInfo.state == CONST.USER_STATE.WITHDREW) {
+            throw CONST.USER_STATE_IS_WITHDREW;
+        }
+
+        if(userInfo.state != CONST.USER_STATE.NORMAL) {
+            throw CONST.USER_STATE_NOT_NORMAL;
         }
 
         return userInfo;
@@ -41,7 +49,7 @@ module.exports =  {
                 updateInfo[key] = param[key];
             }
         });
-
+        console.log('updateInfo',updateInfo);
         return await dao.updateUser(userNo,updateInfo);
     },
 
@@ -52,6 +60,21 @@ module.exports =  {
         let pageObj = utils.generatePageObj(param);
 
         return await dao.selectMessageList(userNo,pageObj);
+    },
+
+    //회원 삭제
+    async deleteUser(param){
+        let userNo = param.userNo;
+
+        let userInfo = {
+            userNo : userNo
+            ,state : '99'
+        };
+
+        console.log(userInfo);
+
+        await this.updateUserInfo(userInfo);
+
     },
 
     //외부 연동 로그인
@@ -65,6 +88,9 @@ module.exports =  {
                 userInfo.userNo = 'F'+userInfo.thirdPartyLinkInfo.authResponse.userID;
                 //페이스북에 해당 엑세스 토큰이 맞는지 검사
                 break;
+            case 'google':
+                userInfo.userNo = 'G'+userInfo.thirdPartyLinkInfo.userId;
+                break;
             default:
                 //지원하지 않는 로그인 타입
                 throw CONST.NOT_SUPPORTED_LOGIN_TYPE;
@@ -76,6 +102,7 @@ module.exports =  {
         if(utils.isEmpty(inUserInfo)) {
             await this.addUser(userInfo);
         } else {
+            userInfo.state = '00';
             await this.updateUserInfo(userInfo);
         }
 

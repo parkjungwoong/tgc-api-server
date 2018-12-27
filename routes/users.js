@@ -59,6 +59,14 @@ router.get('/:userNo/message', function(req, res, next) {
 /**
  * 회원 삭제
  */
+router.delete('/:userNo',function (req, res,next) {
+    userService.deleteUser(req.params).then(value=>{
+        res.json(utils.makeResMeg({result:value}));
+    }).catch(err=>{
+        console.error('외부 연동 로그인 ERR',err);
+        res.json(utils.makeResMeg(CONST.FAIL));
+    });
+});
 
 /**
  * 외부 연동 로그인
@@ -68,7 +76,7 @@ router.post('/thirdPartyLogin', function(req, res, next) {
         res.json(utils.makeResMeg({result:value}));
     }).catch(err=>{
         console.error('외부 연동 로그인 ERR',err);
-        res.json(utils.makeResMeg(CONST.FAIL));
+        res.json(utils.makeResMeg(CONST.FAIL,err));
     });
 });
 

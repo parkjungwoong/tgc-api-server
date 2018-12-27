@@ -1,9 +1,12 @@
 let utils = require('../common/utils.js');
 
 var mongoose = require('mongoose');
-var url = 'mongodb://dev:clzlsaktdla@168.62.62.31:27017/dev';
+//var url = 'mongodb://dev:clzlsaktdla@168.62.62.31:27017/dev';
+var url = 'mongodb://quick:markdown@10.146.0.2:12359/quickmark';
 //process.env.DB_CON
-mongoose.connect(url);
+mongoose.connect(url, {
+    uri_decode_auth: true
+});
 mongoose.Promise = global.Promise;
 
 var db = mongoose.connection;
